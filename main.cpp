@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -52,11 +53,17 @@ char p2_board [10][10] = {
 };
 
 void drawMyBoard(char [10][10]);
+void setBoard(char [10][10]);
 
 int main()
 {   
+    drawMyBoard(p1_board);
     system("clear");
-    drawMyBoard(p2_board);
+    setBoard(p1_board);
+  
+
+    cout << endl << endl;
+    drawMyBoard(p1_board);
     return 0;
 }
 
@@ -88,8 +95,8 @@ void drawMyBoard(char board[10][10]){
         for(int j=0; j<12; j++){
             
             if(j==0){
-                cout << i;
-                if (i<10) cout << " ";
+                cout << i+1;
+                if (i<9) cout << " ";
                 cout << "| ";
             }
 
@@ -105,3 +112,40 @@ void drawMyBoard(char board[10][10]){
     for(int i=1; i<25; i++) cout << "_";
     cout << endl;
 }
+
+void setBoard(char board[10][10]){
+    int i, j;
+    for(int b = 0 ; b < 1; b++){            
+        for(int c = 0; c < 4; c++){
+            i = p1_cv[b][c][0]-48;
+            j = p1_cv[b][c][1]-48;
+            board[i][j] = p1_cv[b][c][2];
+        }
+    }
+
+    for(int b = 0 ; b < 2; b++){            
+        for(int c = 0; c < 3; c++){
+            i = p1_bb[b][c][0]-48;
+            j = p1_bb[b][c][1]-48;
+                board[i][j] = p1_bb[b][c][2];
+        }
+    }
+
+    for(int b = 0 ; b < 3; b++){            
+        for(int c = 0; c < 2; c++){
+            i = p1_cl[b][c][0]-48;
+            j = p1_cl[b][c][1]-48;
+            board[i][j] = p1_cl[b][c][2];
+        }
+    }
+    
+    for(int b = 0 ; b < 2; b++){            
+        for(int c = 0; c < 3; c++){
+            i = p1_dd[b][c][0]-48;
+            j = p1_dd[b][c][1]-48;
+            board[i][j] = p1_dd[b][c][2];
+        }
+    }
+}
+
+//{{'3','3','#'},{'4','3','#'},{'5','3','#'},{'6','3','#'}}
