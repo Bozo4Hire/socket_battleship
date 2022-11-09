@@ -8,6 +8,10 @@
 
 using namespace std;
 
+
+// i = y = fila 
+// j = x = columna
+
 char p1_board [10][10] = {
     {' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
     {' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
@@ -85,49 +89,57 @@ void drawEnemyBoard(char [10][10], bool [10]);
 void setMyBoard(char [10][10]);
 void setBoard(char [10][10], char [1][4][3], char [2][3][3], char [3][2][3], char [4][1][3]);
 
-void attack(char, char, char [10][10], char [1][4][3], char [2][3][3], char [3][2][3], char [4][1][3], bool [10]);
+int attack(char, char, char [10][10], char [1][4][3], char [2][3][3], char [3][2][3], char [4][1][3], bool [10]);
 
 int main()
 {   
-    int player = 1, dummy;
+    int player = 1, dummy, atk_error;
 
     system("clear");
     setMyBoard(p1_board);
     setBoard(p2_board, p2_cv, p2_bb, p2_cl, p2_dd);
     
     while(victory != true){
-        system("clear");
         char x='k', y='k';
 
         if(player%2 != 0){
             player = 1;
 
-            while(!(y >= '0' && y <= '9' && x >= 'a' && x <= 'j')){
+            do{
+                atk_error = 0;
+
+                system("clear");
                 drawEnemyBoard(p2_board, p2_fleet_status);
                 cout << "=============================" << endl << endl;
                 drawMyBoard(p1_board, p1_fleet_status);
+
                 cout << "<-----Turno del Jugador " << player << "----->" << endl << endl;
                 cout << "Fila: "; cin >> y;
                 cout << "Columna: "; cin >> x;
-            }
 
-            attack(x, y, p2_board, p2_cv, p2_bb, p2_cl, p2_dd, p2_fleet_status);
+                atk_error = attack(x, y, p2_board, p2_cv, p2_bb, p2_cl, p2_dd, p2_fleet_status);
+
+            }while(!(y >= '0' && y <= '9' && x >= 'a' && x <= 'j' && atk_error==0));
         }
         else{
             player = 2;
             
-            while(!(y >= '0' && y <= '9' && x >= 'a' && x <= 'j')){
+            do{
+                atk_error = 0;
+
+                system("clear"); 
                 drawEnemyBoard(p1_board, p1_fleet_status);
                 cout << "=============================" << endl << endl;
                 drawMyBoard(p2_board, p2_fleet_status);
+
                 cout << "<-----Turno del Jugador " << player << "----->" << endl << endl;
                 cout << "Fila: "; cin >> y;
                 cout << "Columna: "; cin >> x;
 
+                atk_error = attack(x, y, p1_board, p1_cv, p1_bb, p1_cl, p1_dd, p1_fleet_status);
                 
-            }
+            }while(!(y >= '0' && y <= '9' && x >= 'a' && x <= 'j' && atk_error==0));
 
-            attack(x, y, p1_board, p1_cv, p1_bb, p1_cl, p1_dd, p1_fleet_status);
         }
         player++;
     }
@@ -304,6 +316,80 @@ void setBoard(char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3]
     }
 }
 
-void attack(char x, char y, char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3][2][3], char dd[4][1][3], bool status[10]){
-    board[y-48][x-97] = '.';
+int attack(char x, char y, char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3][2][3], char dd[4][1][3], bool status[10]){
+    x += -49;
+    char i, j;
+    int status_c = 0, hit_c = 0;
+    bool hit = 0, sunk = 0;
+
+    // i = y = fila 
+    // j = x = columna
+
+    if(board[y-48][x-48]==' '){
+        board[y-48][x-48] = '.';
+        return 0;
+
+    }
+    else if(board[y-48][x-48] == '#'){
+
+        for(int b = 0 ; b < 1; b++){
+            for(int d = 0; d<4; d++){         
+                for(int c = 0; c < 4; c++){
+                    i = cv[b][c][0]-48;
+                    j = cv[b][c][1]-48;
+
+                    if(d == 0 && x == cv[b][c][1] && y == cv[b][c][0]){
+                        hit = 1;
+                        board[y-48][x-48] = '@';
+                        cv[b][c][2] = '@';
+                        break;
+                    }
+                    
+
+                    if(d == 1 && cv[b][c][2] == '@') 
+                        hit_c++;
+
+                    if(d == 2){
+                        board[i][j] = 'X';
+                        cv[b][c][2] = 'X';
+                    }
+                }
+
+                if(hit == 0)                break;
+                if(d == 1 && hit_c == 4)    status[status_c] = 0;
+                if(d == 1 && hit_c != 4)    break;
+            }
+            
+            status_c++;
+        }
+
+        for(int b = 0 ; b < 2; b++){            
+            for(int c = 0; c < 3; c++){
+          
+            }
+
+            status_c++;
+        }
+
+        for(int b = 0 ; b < 3; b++){            
+            for(int c = 0; c < 2; c++){
+   
+            }
+
+            status_c++;
+        }
+        
+        for(int b = 0 ; b < 2; b++){            
+            for(int c = 0; c < 3; c++){
+                
+            }
+
+            status_c++;
+        }
+
+        return 0;
+
+    }
+
+    return -1;    
 }
