@@ -6,6 +6,15 @@
 /* #include <curses.h>
 #include <ncurses.h> */
 
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<netinet/in.h>
+#include<netdb.h>
+#include <arpa/inet.h>
+
+#define PORT 8080
+#define _OPEN_SYS_SOCK_IPV6
+
 using namespace std;
 
 
@@ -24,7 +33,6 @@ char p1_board [10][10] = {
     {' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
     {' ',' ',' ',' ',' ',' ',' ',' ',' ',' '}
 };
-
 
 char p1_cv [1][4][3] = {
     {{'3','3','#'},{'4','3','#'},{'5','3','#'},{'6','3','#'}}
@@ -60,24 +68,10 @@ char p2_board [10][10] = {
     {' ',' ',' ',' ',' ',' ',' ',' ',' ',' '}
 };
 
-char p2_cv [1][4][3] = {
-    {{'3','3','#'},{'4','3','#'},{'5','3','#'},{'6','3','#'}}
-};
-char p2_bb [2][3][3] = {
-    {{'5','9','#'},{'6','9','#'},{'7','9','#'}},
-    {{'9','0','#'},{'9','1','#'},{'9','2','#'}}
-};
-char p2_cl [3][2][3] = {
-    {{'4','0','#'},{'4','1','#'}},
-    {{'6','5','#'},{'6','6','#'}},
-    {{'8','7','#'},{'9','7','#'}}
-};
-char p2_dd [4][1][3] = {
-    {{'0','0','#'}},
-    {{'0','9','#'}},
-    {{'3','6','#'}},
-    {{'6','1','#'}}
-};
+char p2_cv [1][4][3];
+char p2_bb [2][3][3];
+char p2_cl [3][2][3];
+char p2_dd [4][1][3];
 
 bool p2_fleet_status[10] = {1,1,1,1,1,1,1,1,1,1};
 
@@ -93,12 +87,97 @@ bool checkwin(int, char [10][10], bool [10], char [10][10], bool [10]);
 
 int main()
 {   
+    system("clear");
+    cout << "B A T T L E S H I P" << endl;
+    cout << "waiting for player 2" << endl;
+    sleep(2);
+
+    // Game variables init:
     int player = 1, dummy, atk_error;
     bool victory = 0;
 
-    system("clear");
-    setMyBoard(p1_board);
-    setBoard(p2_board, p2_cv, p2_bb, p2_cl, p2_dd);
+    // Sockety vars init.
+    int server_fd, new_socket, valread;
+    struct sockaddr_in address;
+    int opt = 1, loop = 1; 
+    int addrlen = sizeof(address);
+
+    // Creating socket file descriptor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Forcefully attaching socket to the port 8080
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+                                                  &opt, sizeof(opt)))
+    {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons( PORT );
+
+    // Forcefully attaching socket to the port 8080
+    if (bind(server_fd, (struct sockaddr *)&address,
+                                 sizeof(address))<0)
+    {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    if (listen(server_fd, 3) < 0)
+    {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
+                       (socklen_t*)&addrlen))<0)
+    {
+        perror("accept");
+        exit(EXIT_FAILURE);
+    }
+
+    for(int b = 0 ; b < 1; b++){            
+        for(int c = 0; c < 4; c++){
+            for(int d = 0; d < 3; d++){
+                char *msg = &p1_cv[b][c][d];
+                send(new_socket , msg , strlen(msg) , 0);
+            }
+        }
+    }
+    for(int b = 0 ; b < 2; b++){            
+        for(int c = 0; c < 3; c++){
+            for(int d = 0; d < 3; d++){
+                char *msg = &p1_bb[b][c][d];
+                send(new_socket , msg , strlen(msg) , 0 );
+            }
+        }
+    } 
+    for(int b = 0 ; b < 3; b++){            
+        for(int c = 0; c < 2; c++){
+            for(int d = 0; d < 3; d++){
+                char *msg = &p1_cl[b][c][d];
+                send(new_socket , msg , strlen(msg) , 0 );
+            }
+        }
+    } 
+    for(int b = 0 ; b < 4; b++){            
+        for(int c = 0; c < 1; c++){
+            for(int d = 0; d < 3; d++){
+                char *msg = &p1_dd[b][c][d];
+                send(new_socket , msg , strlen(msg) , 0 );
+            }
+        }
+    } 
+
+    //setMyBoard(p1_board);
+    //setBoard(p2_board, p2_cv, p2_bb, p2_cl, p2_dd);
+
+    return 0;
+
     
     while(victory != true){
         char x='k', y='k';
