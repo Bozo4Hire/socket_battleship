@@ -38,8 +38,7 @@ char p1_cv [1][4][3];
 char p1_bb [2][3][3];
 char p1_cl [3][2][3];
 char p1_dd [4][1][3];
-
-bool p1_fleet_status[10] = {1,1,1,1,1,1,1,1,1,1};
+bool p1_fleet_status [10] = {1,1,1,1,1,1,1,1,1,1};
 
 char p2_board [10][10] = {
     {' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
@@ -123,55 +122,53 @@ int main()
         for(int c = 0; c < 4; c++){
             for(int d = 0; d < 3; d++){
                 char buffer[1] = {0};
-                valread = read(sock , buffer, 1);
+                valread = read(sock, buffer, 1);
                 p1_cv[b][c][d] = buffer[0];
-                cout << p1_cv[b][c][d] ;
+                char aux = p2_cv[b][c][d];
+                char *msg = &aux;
+                send(sock, msg, strlen(msg), 0);
             }
         }
     }
-    
-    cout << endl;
     for(int b = 0 ; b < 2; b++){            
         for(int c = 0; c < 3; c++){
             for(int d = 0; d < 3; d++){
                 char buffer[1] = {0};
-                valread = read(sock , buffer, 1);
+                valread = read(sock, buffer, 1);
                 p1_bb[b][c][d] = buffer[0];
-                cout << p1_bb[b][c][d] ;
+                char aux = p2_bb[b][c][d];
+                char *msg = &aux;
+                send(sock, msg, strlen(msg), 0);
             }
         }
     } 
-    cout << endl;
     for(int b = 0 ; b < 3; b++){            
         for(int c = 0; c < 2; c++){
             for(int d = 0; d < 3; d++){
                 char buffer[1] = {0};
-                valread = read(sock , buffer, 1);
+                valread = read(sock, buffer, 1);
                 p1_cl[b][c][d] = buffer[0];
-                cout << p1_cl[b][c][d] ;
+                char aux = p2_cl[b][c][d];
+                char *msg = &aux;
+                send(sock, msg, strlen(msg), 0);
             }
         }
     } 
-    cout << endl;
     for(int b = 0 ; b < 4; b++){            
         for(int c = 0; c < 1; c++){
             for(int d = 0; d < 3; d++){
                 char buffer[1] = {0};
-                valread = read(sock , buffer, 1);
+                valread = read(sock, buffer, 1);
                 p1_dd[b][c][d] = buffer[0];
-                cout << p1_dd[b][c][d] ;
+                char aux = p2_dd[b][c][d];
+                char *msg = &aux;
+                send(sock, msg, strlen(msg), 0);
             }
         }
     } 
-    cout << endl; 
     
-    //system("clear");
-    //setMyBoard(p1_board);
-    //system("clear");
+    setMyBoard(p2_board);
     setBoard(p1_board, p1_cv, p1_bb, p1_cl, p1_dd);
-    drawMyBoard(p1_board, p1_fleet_status);
-
-    return 0;
     
     while(victory != true){
         char x='k', y='k';

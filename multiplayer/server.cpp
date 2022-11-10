@@ -72,8 +72,7 @@ char p2_cv [1][4][3];
 char p2_bb [2][3][3];
 char p2_cl [3][2][3];
 char p2_dd [4][1][3];
-
-bool p2_fleet_status[10] = {1,1,1,1,1,1,1,1,1,1};
+bool p2_fleet_status [10] = {1,1,1,1,1,1,1,1,1,1};
 
 void drawMyBoard(char [10][10], bool [10]);
 void drawEnemyBoard(char [10][10], bool [10]);
@@ -97,7 +96,7 @@ int main()
     bool victory = 0;
 
     // Sockety vars init.
-    int server_fd, new_socket, valread;
+    int server_fd, sock, valread;
     struct sockaddr_in address;
     int opt = 1, loop = 1; 
     int addrlen = sizeof(address);
@@ -133,7 +132,7 @@ int main()
         perror("listen");
         exit(EXIT_FAILURE);
     }
-    if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
+    if ((sock = accept(server_fd, (struct sockaddr *)&address,
                        (socklen_t*)&addrlen))<0)
     {
         perror("accept");
@@ -143,42 +142,55 @@ int main()
     for(int b = 0 ; b < 1; b++){            
         for(int c = 0; c < 4; c++){
             for(int d = 0; d < 3; d++){
-                char *msg = &p1_cv[b][c][d];
-                send(new_socket , msg , strlen(msg) , 0);
+                char aux = p1_cv[b][c][d];
+                char *msg = &aux;
+                send(sock, msg, strlen(msg), 0);
+                char buffer[1] = {0};
+                valread = read(sock, buffer, 1);
+                p2_cv[b][c][d] = buffer[0];
             }
         }
     }
     for(int b = 0 ; b < 2; b++){            
         for(int c = 0; c < 3; c++){
             for(int d = 0; d < 3; d++){
-                char *msg = &p1_bb[b][c][d];
-                send(new_socket , msg , strlen(msg) , 0 );
+                char aux = p1_bb[b][c][d];
+                char *msg = &aux;
+                send(sock, msg, strlen(msg), 0);
+                char buffer[1] = {0};
+                valread = read(sock, buffer, 1);
+                p2_bb[b][c][d] = buffer[0];
             }
         }
     } 
     for(int b = 0 ; b < 3; b++){            
         for(int c = 0; c < 2; c++){
             for(int d = 0; d < 3; d++){
-                char *msg = &p1_cl[b][c][d];
-                send(new_socket , msg , strlen(msg) , 0 );
+                char aux = p1_cl[b][c][d];
+                char *msg = &aux;
+                send(sock, msg, strlen(msg), 0);
+                char buffer[1] = {0};
+                valread = read(sock, buffer, 1);
+                p2_cl[b][c][d] = buffer[0];
             }
         }
     } 
     for(int b = 0 ; b < 4; b++){            
         for(int c = 0; c < 1; c++){
             for(int d = 0; d < 3; d++){
-                char *msg = &p1_dd[b][c][d];
-                send(new_socket , msg , strlen(msg) , 0 );
+                char aux = p1_dd[b][c][d];
+                char *msg = &aux;
+                send(sock, msg, strlen(msg), 0);
+                char buffer[1] = {0};
+                valread = read(sock, buffer, 1);
+                p2_dd[b][c][d] = buffer[0];
             }
         }
     } 
 
-    //setMyBoard(p1_board);
-    //setBoard(p2_board, p2_cv, p2_bb, p2_cl, p2_dd);
+    setMyBoard(p1_board);
+    setBoard(p2_board, p2_cv, p2_bb, p2_cl, p2_dd);
 
-    return 0;
-
-    
     while(victory != true){
         char x='k', y='k';
 
