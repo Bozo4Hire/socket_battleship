@@ -76,7 +76,6 @@ bool p2_fleet_status[10] = {1,1,1,1,1,1,1,1,1,1};
 
 void drawMyBoard(char [10][10], bool [10]);
 void drawEnemyBoard(char [10][10], bool [10]);
-void setMyBoard(char [10][10]);
 void setBoard(char [10][10], char [1][4][3], char [2][3][3], char [3][2][3], char [4][1][3]);
 int attack(char, char, char [10][10], char [1][4][3], char [2][3][3], char [3][2][3], char [4][1][3], bool [10]);
 bool checkwin(int, char [10][10], bool [10], char [10][10], bool [10]);
@@ -164,9 +163,9 @@ int main()
         }
     } 
     
-    setMyBoard(p2_board);
     setBoard(p1_board, p1_cv, p1_bb, p1_cl, p1_dd);
-    
+    setBoard(p2_board, p2_cv, p2_bb, p2_cl, p2_dd);
+
     while(victory != true){
         char x='k', y='k';
 
@@ -181,16 +180,14 @@ int main()
             cout << "<-----Turno del Jugador " << player << "----->" << endl << endl;
             cout << "Esperando al Jugador "<< player << " ...";
 
-            char buffer[1] = {0};
-            valread = read(sock, buffer, 1);
+            char buffer[2] = {0};
+            valread = read(sock, buffer, 2);
             y = buffer[0];
-            valread = read(sock, buffer, 1);
-            x = buffer[0];
-            
+            x = buffer[1];
+
             attack(x, y, p2_board, p2_cv, p2_bb, p2_cl, p2_dd, p2_fleet_status);
 
-            victory = checkwin(player, p2_board, p2_fleet_status, p1_board, p1_fleet_status);
-
+            victory = checkwin(player, p1_board, p1_fleet_status, p2_board, p2_fleet_status);
         }
         else{
             player = 2;
@@ -211,10 +208,9 @@ int main()
                 
             }while(!(y >= '0' && y <= '9' && x >= 'a' && x <= 'j' && atk_error==0));
 
-            char *msgy = &y;
-            send(sock, msgy, strlen(msgy), 0);
-            char *msgx = &x;
-            send(sock, msgx, strlen(msgx), 0);
+            char aux[2] = {y,x};
+            char *msg = aux;
+            send(sock, msg, strlen(msg), 0);
 
             victory = checkwin(player, p2_board, p2_fleet_status, p1_board, p1_fleet_status);
         }
@@ -320,44 +316,6 @@ void drawEnemyBoard(char board[10][10], bool status[10]){
     cout << "Cruseros: " << status[3]+status[4]+status[5] << " | Destructores: " << status[6]+status[7]+status[8]+status[9] << endl << endl;
 }
 
-void setMyBoard(char board[10][10]){
-    int i, j;
-    bool ready = false;
-    char input;
-
-    for(int b = 0 ; b < 1; b++){            
-        for(int c = 0; c < 4; c++){
-            i = p1_cv[b][c][0]-48;
-            j = p1_cv[b][c][1]-48;
-            board[i][j] = p1_cv[b][c][2];
-        }
-    }
-
-    for(int b = 0 ; b < 2; b++){            
-        for(int c = 0; c < 3; c++){
-            i = p1_bb[b][c][0]-48;
-            j = p1_bb[b][c][1]-48;
-            board[i][j] = p1_bb[b][c][2];
-        }
-    }
-
-    for(int b = 0 ; b < 3; b++){            
-        for(int c = 0; c < 2; c++){
-            i = p1_cl[b][c][0]-48;
-            j = p1_cl[b][c][1]-48;
-            board[i][j] = p1_cl[b][c][2];
-        }
-    }
-    
-    for(int b = 0 ; b < 4; b++){            
-        for(int c = 0; c < 1; c++){
-            i = p1_dd[b][c][0]-48;
-            j = p1_dd[b][c][1]-48;
-            board[i][j] = p1_dd[b][c][2];
-        }
-    }
-}
-
 void setBoard(char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3][2][3], char dd[4][1][3])
 {
     int i, j;
@@ -406,7 +364,6 @@ int attack(char x, char y, char board[10][10], char cv[1][4][3], char bb[2][3][3
     if(board[y-48][x-48]==' '){
         board[y-48][x-48] = '.';
         return 0;
-
     }
     else if(board[y-48][x-48] == '#'){
 
@@ -545,11 +502,9 @@ int attack(char x, char y, char board[10][10], char cv[1][4][3], char bb[2][3][3
             }
             status_c++; 
         }
-
         return 0;
 
     }
-
     return -1;    
 }
 
