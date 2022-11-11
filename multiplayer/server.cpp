@@ -78,7 +78,7 @@ void drawMyBoard(char [10][10], bool [10]);
 void drawEnemyBoard(char [10][10], bool [10]);
 void setBoard(char [10][10], char [1][4][3], char [2][3][3], char [3][2][3], char [4][1][3]);
 int attack(char, char, char [10][10], char [1][4][3], char [2][3][3], char [3][2][3], char [4][1][3], bool [10]);
-bool checkwin(int, char [10][10], bool [10], char [10][10], bool [10]);
+bool checkwin(int, char [10][10], char [10][10], bool [10], bool [10], bool [10]);
 
 int main()
 {   
@@ -213,7 +213,7 @@ int main()
             char *msg = aux;
             send(sock, msg, strlen(msg), 0);
 
-            victory = checkwin(player, p1_board, p1_fleet_status, p2_board, p2_fleet_status);
+            victory = checkwin(player, p1_board, p2_board, p2_fleet_status, p1_fleet_status, p2_fleet_status);
         }
         else{
             player = 2;
@@ -233,7 +233,7 @@ int main()
 
             attack(x, y, p1_board, p1_cv, p1_bb, p1_cl, p1_dd, p1_fleet_status);
 
-            victory = checkwin(player, p2_board, p2_fleet_status, p1_board, p1_fleet_status);
+            victory = checkwin(player, p1_board, p2_board, p1_fleet_status, p1_fleet_status, p2_fleet_status);
         }
 
         player++;
@@ -527,11 +527,11 @@ int attack(char x, char y, char board[10][10], char cv[1][4][3], char bb[2][3][3
     return -1;    
 }
 
-bool checkwin(int pnum, char myBoard[10][10], bool myStatus[10], char enBoard[10][10], bool enStatus[10]){
-    int status_sum=0, aux;
+bool checkwin(int pnum, char myBoard[10][10], char enBoard[10][10], bool curStatus[10], bool myStatus[10], bool enStatus[10]){
+    int status_sum=0;
     
     for(int i = 0; i < 10; i++){
-        status_sum += int(enStatus[i]);
+        status_sum += int(curStatus[i]);
     }
 
     if(status_sum < 1){
