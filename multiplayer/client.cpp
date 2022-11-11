@@ -76,12 +76,9 @@ bool p2_fleet_status[10] = {1,1,1,1,1,1,1,1,1,1};
 
 void drawMyBoard(char [10][10], bool [10]);
 void drawEnemyBoard(char [10][10], bool [10]);
-
 void setMyBoard(char [10][10]);
 void setBoard(char [10][10], char [1][4][3], char [2][3][3], char [3][2][3], char [4][1][3]);
-
 int attack(char, char, char [10][10], char [1][4][3], char [2][3][3], char [3][2][3], char [4][1][3], bool [10]);
-
 bool checkwin(int, char [10][10], bool [10], char [10][10], bool [10]);
 
 int main()
@@ -176,23 +173,24 @@ int main()
         if(player%2 != 0){
             player = 1;
 
-            do{
-                atk_error = 0;
+            system("clear");
+            drawEnemyBoard(p1_board, p1_fleet_status);
+            cout << "=============================" << endl << endl;
+            drawMyBoard(p2_board, p2_fleet_status);
 
-                system("clear");
-                drawEnemyBoard(p2_board, p2_fleet_status);
-                cout << "=============================" << endl << endl;
-                drawMyBoard(p1_board, p1_fleet_status);
+            cout << "<-----Turno del Jugador " << player << "----->" << endl << endl;
+            cout << "Esperando al Jugador "<< player << " ...";
 
-                cout << "<-----Turno del Jugador " << player << "----->" << endl << endl;
-                cout << "Fila: "; cin >> y;
-                cout << "Columna: "; cin >> x;
+            char buffer[1] = {0};
+            valread = read(sock, buffer, 1);
+            y = buffer[0];
+            valread = read(sock, buffer, 1);
+            x = buffer[0];
+            
+            attack(x, y, p2_board, p2_cv, p2_bb, p2_cl, p2_dd, p2_fleet_status);
 
-                atk_error = attack(x, y, p2_board, p2_cv, p2_bb, p2_cl, p2_dd, p2_fleet_status);
+            victory = checkwin(player, p2_board, p2_fleet_status, p1_board, p1_fleet_status);
 
-            }while(!(y >= '0' && y <= '9' && x >= 'a' && x <= 'j' && atk_error==0));
-
-            victory = checkwin(player, p1_board, p1_fleet_status, p2_board, p2_fleet_status);
         }
         else{
             player = 2;
@@ -212,6 +210,11 @@ int main()
                 atk_error = attack(x, y, p1_board, p1_cv, p1_bb, p1_cl, p1_dd, p1_fleet_status);
                 
             }while(!(y >= '0' && y <= '9' && x >= 'a' && x <= 'j' && atk_error==0));
+
+            char *msgy = &y;
+            send(sock, msgy, strlen(msgy), 0);
+            char *msgx = &x;
+            send(sock, msgx, strlen(msgx), 0);
 
             victory = checkwin(player, p2_board, p2_fleet_status, p1_board, p1_fleet_status);
         }
