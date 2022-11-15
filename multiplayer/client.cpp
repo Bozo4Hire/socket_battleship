@@ -93,7 +93,7 @@ int main()
 
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        printf("\n Socket creation error \n");
+        printw("\n Socket creation error \n");
         return -1;
     }
     
@@ -104,13 +104,13 @@ int main()
     // Convert IPv4 and IPv6 addresses from text to binary form
     if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
     {
-        printf("\nInvalid address/ Address not supported \n");
+        printw("\nInvalid address/ Address not supported \n");
         return -1;
     }
 
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
-        printf("\nConnection Failed \n");
+        printw("\nConnection Failed \n");
         return -1;
     }
 
@@ -166,19 +166,21 @@ int main()
     setBoard(p1_board, p1_cv, p1_bb, p1_cl, p1_dd);
     setBoard(p2_board, p2_cv, p2_bb, p2_cl, p2_dd);
 
+    initscr();
     while(victory != true){
         char x='k', y='k';
 
         if(player%2 != 0){
             player = 1;
 
-            system("clear");
+            clear();
             drawEnemyBoard(p1_board, p1_fleet_status);
-            printf("=============================\n\n");
+            printw("=============================\n\n");
             drawMyBoard(p2_board, p2_fleet_status);
 
-            printf("<-----Turno del Jugador %i----->\n\n", player);
-            printf("Esperando al Jugador %i ...\n", player);
+            printw("<-----Turno del Jugador %i----->\n\n", player);
+            printw("Esperando al Jugador %i ...\n", player);
+            refresh();
 
             char buffer[2] = {0};
             valread = read(sock, buffer, 2);
@@ -195,14 +197,19 @@ int main()
             do{
                 atk_error = 0;
 
-                system("clear"); 
+                clear();
                 drawEnemyBoard(p1_board, p1_fleet_status);
-                printf("=============================\n\n");
+                printw("=============================\n\n");
                 drawMyBoard(p2_board, p2_fleet_status);
 
-                printf("<-----Turno del Jugador %i----->\n\n", player);
-                printf("Fila: "); scanf(" %c", &y);
-                printf("Columna: "); scanf(" %c", &x);
+                printw("<-----Turno del Jugador %i----->\n\n", player);
+                refresh();
+                printw("Fila: "); refresh();
+                scanf(" %c", &y);
+                printw("%c", y); refresh();
+                printw("\nColumna: "); refresh();
+                scanf(" %c", &x);\
+                printw("%c", x); refresh();
 
                 atk_error = attack(x, y, p1_board, p1_cv, p1_bb, p1_cl, p1_dd, p1_fleet_status);
                 
@@ -217,6 +224,7 @@ int main()
 
         player++;
     }
+    endwin();
     return 0;
 }
 
@@ -227,42 +235,42 @@ void drawMyBoard(char board[10][10], bool status[10]){
     for(int i=0; i<2; i++){
         for (int j=0; j<12; j++){
             if(j==0){
-                if(i==0) printf("   ");
-                else printf("___");
+                if(i==0) printw("   ");
+                else printw("___");
             }
             else if (j<11){
                 if(i==0){
-                    printf ("%c ", l);
+                    printw ("%c ", l);
                     l++;
                 }
-                else printf("__");
+                else printw("__");
             }
             else
-                if(i==1) printf("_");
+                if(i==1) printw("_");
             
         }
-        printf("\n");
+        printw("\n");
     }
     
     for(int i=0; i<10; i++){
         for(int j=0; j<12; j++){
             
             if(j==0)
-                printf("%i| ", i);
+                printw("%i| ", i);
 
             else if(j<11)
-                printf("%c ", board[i][j-1]);
+                printw("%c ", board[i][j-1]);
             
             else 
-                printf("|");
+                printw("|");
             
         }
-        printf ("\n");
+        printw ("\n");
     }
-    for(int i=1; i<25; i++) printf("_");
-    printf("\n\n");
-    printf("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
-    printf("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
+    for(int i=1; i<25; i++) printw("_");
+    printw("\n\n");
+    printw("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
+    printw("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
 }
 
 void drawEnemyBoard(char board[10][10], bool status[10]){
@@ -271,45 +279,45 @@ void drawEnemyBoard(char board[10][10], bool status[10]){
     for(int i=0; i<2; i++){
         for (int j=0; j<12; j++){
             if(j==0){
-                if(i==0) printf("   ");
-                else printf("___");
+                if(i==0) printw("   ");
+                else printw("___");
             }
             else if (j<11){
                 if(i==0){
-                    printf("%c ", l);
+                    printw("%c ", l);
                     l++;
                 }
-                else printf("__");
+                else printw("__");
             }
             else
-                if(i==1) printf("_");
+                if(i==1) printw("_");
             
         }
-        printf("\n");
+        printw("\n");
     }
     
     for(int i=0; i<10; i++){
         for(int j=0; j<12; j++){
             
             if(j==0)
-                printf("%i| ", i);
+                printw("%i| ", i);
 
             else if(j<11){
                 if(board[i][j-1] == '#')
-                    printf(" ");
-                else printf("%c", board[i][j-1]);
-                printf(" ");
+                    printw(" ");
+                else printw("%c", board[i][j-1]);
+                printw(" ");
             }
             
-            else printf("|");
+            else printw("|");
             
         }
-        printf("\n");
+        printw("\n");
     }
-    for(int i=1; i<25; i++) printf("_");
-    printf("\n\n");
-    printf("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
-    printf("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
+    for(int i=1; i<25; i++) printw("_");
+    printw("\n\n");
+    printw("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
+    printw("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
 }
 
 void setBoard(char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3][2][3], char dd[4][1][3])
@@ -514,7 +522,7 @@ bool checkwin(int pnum, char myBoard[10][10], char enBoard[10][10], bool curStat
     if(status_sum < 1){
         system("clear");
         drawMyBoard(enBoard, enStatus);
-        printf("========Jugador %i Gana=======\n\n", pnum);
+        printw("========Jugador %i Gana=======\n\n", pnum);
         drawMyBoard(myBoard, myStatus);
         return 1;
     }
