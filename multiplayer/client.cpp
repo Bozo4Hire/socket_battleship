@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-/* #include <curses.h>
-#include <ncurses.h> */
+#include <curses.h>
+#include <ncurses.h>
 
 #include<sys/types.h>
 #include<sys/socket.h>
@@ -174,11 +174,11 @@ int main()
 
             system("clear");
             drawEnemyBoard(p1_board, p1_fleet_status);
-            cout << "=============================" << endl << endl;
+            printf("=============================\n\n");
             drawMyBoard(p2_board, p2_fleet_status);
 
-            cout << "<-----Turno del Jugador " << player << "----->" << endl << endl;
-            cout << "Esperando al Jugador "<< player << " ..." << endl;
+            printf("<-----Turno del Jugador %i----->\n\n", player);
+            printf("Esperando al Jugador %i ...\n", player);
 
             char buffer[2] = {0};
             valread = read(sock, buffer, 2);
@@ -197,12 +197,12 @@ int main()
 
                 system("clear"); 
                 drawEnemyBoard(p1_board, p1_fleet_status);
-                cout << "=============================" << endl << endl;
+                printf("=============================\n\n");
                 drawMyBoard(p2_board, p2_fleet_status);
 
-                cout << "<-----Turno del Jugador " << player << "----->" << endl << endl;
-                cout << "Fila: "; cin >> y;
-                cout << "Columna: "; cin >> x;
+                printf("<-----Turno del Jugador %i----->\n\n", player);
+                printf("Fila: "); scanf(" %c", &y);
+                printf("Columna: "); scanf(" %c", &x);
 
                 atk_error = attack(x, y, p1_board, p1_cv, p1_bb, p1_cl, p1_dd, p1_fleet_status);
                 
@@ -227,44 +227,42 @@ void drawMyBoard(char board[10][10], bool status[10]){
     for(int i=0; i<2; i++){
         for (int j=0; j<12; j++){
             if(j==0){
-                if(i==0) cout << "   ";
-                else cout << "___";
+                if(i==0) printf("   ");
+                else printf("___");
             }
             else if (j<11){
                 if(i==0){
-                    cout << l << " ";
+                    printf ("%c ", l);
                     l++;
                 }
-                else cout << "__";
+                else printf("__");
             }
             else
-                if(i==1) cout << "_";
+                if(i==1) printf("_");
             
         }
-        cout << endl;
+        printf("\n");
     }
     
     for(int i=0; i<10; i++){
         for(int j=0; j<12; j++){
             
-            if(j==0){
-                cout << i;
-                cout << "| ";
-            }
+            if(j==0)
+                printf("%i| ", i);
 
-            else if(j<11){
-                cout << board[i][j-1] << " ";
-            }
+            else if(j<11)
+                printf("%c ", board[i][j-1]);
             
-            else cout << "|";
+            else 
+                printf("|");
             
         }
-        cout << endl;
+        printf ("\n");
     }
-    for(int i=1; i<25; i++) cout << "_";
-    cout << endl << endl;
-    cout << "Portaviones: " << status[0] << " | Acorazados: " << status[1]+status[2] << endl;
-    cout << "Cruseros: " << status[3]+status[4]+status[5] << " | Destructores: " << status[6]+status[7]+status[8]+status[9] << endl << endl;
+    for(int i=1; i<25; i++) printf("_");
+    printf("\n\n");
+    printf("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
+    printf("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
 }
 
 void drawEnemyBoard(char board[10][10], bool status[10]){
@@ -273,47 +271,45 @@ void drawEnemyBoard(char board[10][10], bool status[10]){
     for(int i=0; i<2; i++){
         for (int j=0; j<12; j++){
             if(j==0){
-                if(i==0) cout << "   ";
-                else cout << "___";
+                if(i==0) printf("   ");
+                else printf("___");
             }
             else if (j<11){
                 if(i==0){
-                    cout << l << " ";
+                    printf("%c ", l);
                     l++;
                 }
-                else cout << "__";
+                else printf("__");
             }
             else
-                if(i==1) cout << "_";
+                if(i==1) printf("_");
             
         }
-        cout << endl;
+        printf("\n");
     }
     
     for(int i=0; i<10; i++){
         for(int j=0; j<12; j++){
             
-            if(j==0){
-                cout << i;
-                cout << "| ";
-            }
+            if(j==0)
+                printf("%i| ", i);
 
             else if(j<11){
                 if(board[i][j-1] == '#')
-                    cout << " ";
-                else cout << board[i][j-1];
-                cout << " ";
+                    printf(" ");
+                else printf("%c", board[i][j-1]);
+                printf(" ");
             }
             
-            else cout << "|";
+            else printf("|");
             
         }
-        cout << endl;
+        printf("\n");
     }
-    for(int i=1; i<25; i++) cout << "_";
-    cout << endl << endl;
-    cout << "Portaviones: " << status[0] << " | Acorazados: " << status[1]+status[2] << endl;
-    cout << "Cruseros: " << status[3]+status[4]+status[5] << " | Destructores: " << status[6]+status[7]+status[8]+status[9] << endl << endl;
+    for(int i=1; i<25; i++) printf("_");
+    printf("\n\n");
+    printf("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
+    printf("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
 }
 
 void setBoard(char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3][2][3], char dd[4][1][3])
@@ -518,11 +514,10 @@ bool checkwin(int pnum, char myBoard[10][10], char enBoard[10][10], bool curStat
     if(status_sum < 1){
         system("clear");
         drawMyBoard(enBoard, enStatus);
-        cout << "========Jugador " << pnum << " Gana=======" << endl << endl;
+        printf("========Jugador %i Gana=======\n\n", pnum);
         drawMyBoard(myBoard, myStatus);
         return 1;
     }
     else
         return 0;
-    
 }
