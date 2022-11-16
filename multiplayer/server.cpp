@@ -1,6 +1,4 @@
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <curses.h>
@@ -186,6 +184,7 @@ int main()
     setBoard(p1_board, p1_cv, p1_bb, p1_cl, p1_dd);
     setBoard(p2_board, p2_cv, p2_bb, p2_cl, p2_dd);
 
+    initscr();
     while(victory != true){
         char x='k', y='k';
 
@@ -195,18 +194,21 @@ int main()
             do{
                 atk_error = 0;
 
-                system("clear");
+                clear();
                 drawEnemyBoard(p2_board, p2_fleet_status);
-                printf("=============================\n\n");
+                printw("=============================\n\n");
                 drawMyBoard(p1_board, p1_fleet_status);
 
-                printf("<-----Turno del Jugador %i----->\n\n", player);
-                printf("Fila: "); scanf(" %c", &y);
-                printf("Columna: "); scanf(" %c", &x);
+                printw("<-----Turno del Jugador %i----->\n\n", player);
+                printw("Fila: "); refresh();
+                y = getch();
+                printw("\nColumna: "); refresh();
+                x = getch();
+                sleep(0.5);
 
                 atk_error = attack(x, y, p2_board, p2_cv, p2_bb, p2_cl, p2_dd, p2_fleet_status);
 
-            }while(!(y >= '0' && y <= '9' && x >= 'a' && x <= 'j' && atk_error==0));
+            }while(!(atk_error==0));
 
             char aux[2] = {y,x};
             char *msg = aux;
@@ -217,13 +219,14 @@ int main()
         else{
             player = 2;
             
-            system("clear"); 
+            clear();
             drawEnemyBoard(p2_board, p2_fleet_status);
-            printf("=============================\n\n");
+            printw("=============================\n\n");
             drawMyBoard(p1_board, p1_fleet_status);
 
-            printf("<-----Turno del Jugador %i----->\n\n", player);
-            printf("Esperando al Jugador %i ...\n", player);
+            printw("<-----Turno del Jugador %i----->\n\n", player);
+            printw("Esperando al Jugador %i ...\n", player);
+            refresh();
 
             char buffer[2] = {0};
             valread = read(sock, buffer, 2);
@@ -237,6 +240,8 @@ int main()
 
         player++;
     }
+    getch();
+    endwin();
     return 0;
 }
 
@@ -246,42 +251,42 @@ void drawMyBoard(char board[10][10], bool status[10]){
     for(int i=0; i<2; i++){
         for (int j=0; j<12; j++){
             if(j==0){
-                if(i==0) printf("   ");
-                else printf("___");
+                if(i==0) printw("   ");
+                else printw("___");
             }
             else if (j<11){
                 if(i==0){
-                    printf ("%c ", l);
+                    printw ("%c ", l);
                     l++;
                 }
-                else printf("__");
+                else printw("__");
             }
             else
-                if(i==1) printf("_");
+                if(i==1) printw("_");
             
         }
-        printf("\n");
+        printw("\n");
     }
     
     for(int i=0; i<10; i++){
         for(int j=0; j<12; j++){
             
             if(j==0)
-                printf("%i| ", i);
+                printw("%i| ", i);
 
             else if(j<11)
-                printf("%c ", board[i][j-1]);
+                printw("%c ", board[i][j-1]);
             
             else 
-                printf("|");
+                printw("|");
             
         }
-        printf ("\n");
+        printw ("\n");
     }
-    for(int i=1; i<25; i++) printf("_");
-    printf("\n\n");
-    printf("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
-    printf("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
+    for(int i=1; i<25; i++) printw("_");
+    printw("\n\n");
+    printw("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
+    printw("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
 }
 
 void drawEnemyBoard(char board[10][10], bool status[10]){
@@ -290,45 +295,45 @@ void drawEnemyBoard(char board[10][10], bool status[10]){
     for(int i=0; i<2; i++){
         for (int j=0; j<12; j++){
             if(j==0){
-                if(i==0) printf("   ");
-                else printf("___");
+                if(i==0) printw("   ");
+                else printw("___");
             }
             else if (j<11){
                 if(i==0){
-                    printf("%c ", l);
+                    printw("%c ", l);
                     l++;
                 }
-                else printf("__");
+                else printw("__");
             }
             else
-                if(i==1) printf("_");
+                if(i==1) printw("_");
             
         }
-        printf("\n");
+        printw("\n");
     }
     
     for(int i=0; i<10; i++){
         for(int j=0; j<12; j++){
             
             if(j==0)
-                printf("%i| ", i);
+                printw("%i| ", i);
 
             else if(j<11){
                 if(board[i][j-1] == '#')
-                    printf(" ");
-                else printf("%c", board[i][j-1]);
-                printf(" ");
+                    printw(" ");
+                else printw("%c", board[i][j-1]);
+                printw(" ");
             }
             
-            else printf("|");
+            else printw("|");
             
         }
-        printf("\n");
+        printw("\n");
     }
-    for(int i=1; i<25; i++) printf("_");
-    printf("\n\n");
-    printf("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
-    printf("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
+    for(int i=1; i<25; i++) printw("_");
+    printw("\n\n");
+    printw("Portaviones: %i | Acorazados: %i\n", status[0], status[1]+status[2]);
+    printw("Cruseros: %i | Destructores: %i\n\n", status[3]+status[4]+status[5], status[6]+status[7]+status[8]+status[9]);
 }
 
 void setBoard(char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3][2][3], char dd[4][1][3])
@@ -368,157 +373,158 @@ void setBoard(char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3]
 }
 
 int attack(char x, char y, char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3][2][3], char dd[4][1][3], bool status[10]){
-    x += -49;
-    char i, j;
-    int status_c = 0, hit_c;
-    bool hit = 0;
+    if(y >= '0' && y <= '9' && x >= 'a' && x <= 'j'){
+        x += -49;
+        char i, j;
+        int status_c = 0, hit_c;
+        bool hit = 0;
 
-    // i = y = fila 
-    // j = x = columna
+        // i = y = fila 
+        // j = x = columna
 
-    if(board[y-48][x-48]==' '){
-        board[y-48][x-48] = '.';
-        return 0;
-    }
-    else if(board[y-48][x-48] == '#'){
-
-        for(int b = 0 ; b < 1; b++){
-            hit_c = 0;
-            for(int d = 0; d<3; d++){    
-                for(int c = 0; c < 4; c++){
-
-                    if (d == 0 && cv[b][c][2] == 'X')
-                        break;  
-
-                    i = cv[b][c][0]-48;
-                    j = cv[b][c][1]-48;
-
-                    if(d == 0 && x == cv[b][c][1] && y == cv[b][c][0]){
-                        hit = 1;
-                        board[y-48][x-48] = '@';
-                        cv[b][c][2] = '@';
-                        break;
-                    }
-                    if(d == 1 && cv[b][c][2] == '@') 
-                        hit_c++;
-
-                    if(d == 2){
-                        board[i][j] = 'X';
-                        cv[b][c][2] = 'X';
-                    }
-
-                }
-
-                if(hit == 0)                break;
-                if(d == 1 && hit_c == 4)    status[status_c] = 0;
-                if(d == 1 && hit_c != 4)    break;
-            }
-            status_c++;
+        if(board[y-48][x-48]==' '){
+            board[y-48][x-48] = '.';
+            return 0;
         }
+        else if(board[y-48][x-48] == '#'){
 
-        for(int b = 0 ; b < 2; b++){  
-            hit_c = 0;
-            for(int d = 0; d<3; d++){  
-                for(int c = 0; c < 3; c++){
+            for(int b = 0 ; b < 1; b++){
+                hit_c = 0;
+                for(int d = 0; d<3; d++){    
+                    for(int c = 0; c < 4; c++){
 
-                    if (d == 0 && bb[b][c][2] == 'X')
-                        break;  
+                        if (d == 0 && cv[b][c][2] == 'X')
+                            break;  
 
-                    i = bb[b][c][0]-48;
-                    j = bb[b][c][1]-48;
+                        i = cv[b][c][0]-48;
+                        j = cv[b][c][1]-48;
 
-                    if(d == 0 && x == bb[b][c][1] && y == bb[b][c][0]){
-                        hit = 1;
-                        board[y-48][x-48] = '@';
-                        bb[b][c][2] = '@';
-                        break;
+                        if(d == 0 && x == cv[b][c][1] && y == cv[b][c][0]){
+                            hit = 1;
+                            board[y-48][x-48] = '@';
+                            cv[b][c][2] = '@';
+                            break;
+                        }
+                        if(d == 1 && cv[b][c][2] == '@') 
+                            hit_c++;
+
+                        if(d == 2){
+                            board[i][j] = 'X';
+                            cv[b][c][2] = 'X';
+                        }
+
                     }
-                    if(d == 1 && bb[b][c][2] == '@') 
-                        hit_c++;
 
-                    if(d == 2){
-                        board[i][j] = 'X';
-                        bb[b][c][2] = 'X';
-                    }
-
+                    if(hit == 0)                break;
+                    if(d == 1 && hit_c == 4)    status[status_c] = 0;
+                    if(d == 1 && hit_c != 4)    break;
                 }
-
-                if(hit == 0)                break;
-                if(d == 1 && hit_c == 3)    status[status_c] = 0;
-                if(d == 1 && hit_c != 3)    break;
+                status_c++;
             }
-            status_c++;               
-        }
 
-        for(int b = 0 ; b < 3; b++){
-            hit_c = 0;
-            for(int d = 0; d<3; d++){              
-                for(int c = 0; c < 2; c++){
-           
-                    if (d == 0 && cl[b][c][2] == 'X')
-                        break;  
+            for(int b = 0 ; b < 2; b++){  
+                hit_c = 0;
+                for(int d = 0; d<3; d++){  
+                    for(int c = 0; c < 3; c++){
 
-                    i = cl[b][c][0]-48;
-                    j = cl[b][c][1]-48;
+                        if (d == 0 && bb[b][c][2] == 'X')
+                            break;  
 
-                    if(d == 0 && x == cl[b][c][1] && y == cl[b][c][0]){
-                        hit = 1;
-                        board[y-48][x-48] = '@';
-                        cl[b][c][2] = '@';
-                        break;
+                        i = bb[b][c][0]-48;
+                        j = bb[b][c][1]-48;
+
+                        if(d == 0 && x == bb[b][c][1] && y == bb[b][c][0]){
+                            hit = 1;
+                            board[y-48][x-48] = '@';
+                            bb[b][c][2] = '@';
+                            break;
+                        }
+                        if(d == 1 && bb[b][c][2] == '@') 
+                            hit_c++;
+
+                        if(d == 2){
+                            board[i][j] = 'X';
+                            bb[b][c][2] = 'X';
+                        }
+
                     }
-                    if(d == 1 && cl[b][c][2] == '@') 
-                        hit_c++;
 
-                    if(d == 2){
-                        board[i][j] = 'X';
-                        cl[b][c][2] = 'X';
-                    }
-
+                    if(hit == 0)                break;
+                    if(d == 1 && hit_c == 3)    status[status_c] = 0;
+                    if(d == 1 && hit_c != 3)    break;
                 }
-
-                if(hit == 0)                break;
-                if(d == 1 && hit_c == 2)    status[status_c] = 0;
-                if(d == 1 && hit_c != 2)    break;
+                status_c++;               
             }
-            status_c++; 
-        }
-        
-        for(int b = 0 ; b < 4; b++){  
-            hit_c = 0;
-            for(int d = 0; d<3; d++){  
-                for(int c = 0; c < 1; c++){
 
-                    if (d == 0 && dd[b][c][2] == 'X')
-                        break;  
+            for(int b = 0 ; b < 3; b++){
+                hit_c = 0;
+                for(int d = 0; d<3; d++){              
+                    for(int c = 0; c < 2; c++){
+            
+                        if (d == 0 && cl[b][c][2] == 'X')
+                            break;  
 
-                    i = dd[b][c][0]-48;
-                    j = dd[b][c][1]-48;
+                        i = cl[b][c][0]-48;
+                        j = cl[b][c][1]-48;
 
-                    if(d == 0 && x == dd[b][c][1] && y == dd[b][c][0]){
-                        hit = 1;
-                        board[y-48][x-48] = '@';
-                        dd[b][c][2] = '@';
-                        break;
+                        if(d == 0 && x == cl[b][c][1] && y == cl[b][c][0]){
+                            hit = 1;
+                            board[y-48][x-48] = '@';
+                            cl[b][c][2] = '@';
+                            break;
+                        }
+                        if(d == 1 && cl[b][c][2] == '@') 
+                            hit_c++;
+
+                        if(d == 2){
+                            board[i][j] = 'X';
+                            cl[b][c][2] = 'X';
+                        }
+
                     }
-                    if(d == 1 && dd[b][c][2] == '@') 
-                        hit_c++;
 
-                    if(d == 2){
-                        board[i][j] = 'X';
-                        dd[b][c][2] = 'X';
-                    }
-
+                    if(hit == 0)                break;
+                    if(d == 1 && hit_c == 2)    status[status_c] = 0;
+                    if(d == 1 && hit_c != 2)    break;
                 }
-
-                if(hit == 0)                break;
-                if(d == 1 && hit_c == 1)    status[status_c] = 0;
-                if(d == 1 && hit_c != 1)    break;
+                status_c++; 
             }
-            status_c++; 
-        }
-        return 0;
+            
+            for(int b = 0 ; b < 4; b++){  
+                hit_c = 0;
+                for(int d = 0; d<3; d++){  
+                    for(int c = 0; c < 1; c++){
 
+                        if (d == 0 && dd[b][c][2] == 'X')
+                            break;  
+
+                        i = dd[b][c][0]-48;
+                        j = dd[b][c][1]-48;
+
+                        if(d == 0 && x == dd[b][c][1] && y == dd[b][c][0]){
+                            hit = 1;
+                            board[y-48][x-48] = '@';
+                            dd[b][c][2] = '@';
+                            break;
+                        }
+                        if(d == 1 && dd[b][c][2] == '@') 
+                            hit_c++;
+
+                        if(d == 2){
+                            board[i][j] = 'X';
+                            dd[b][c][2] = 'X';
+                        }
+
+                    }
+
+                    if(hit == 0)                break;
+                    if(d == 1 && hit_c == 1)    status[status_c] = 0;
+                    if(d == 1 && hit_c != 1)    break;
+                }
+                status_c++; 
+            }
+            return 0;
+        }
     }
     return -1;    
 }
@@ -533,7 +539,7 @@ bool checkwin(int pnum, char myBoard[10][10], char enBoard[10][10], bool curStat
     if(status_sum < 1){
         system("clear");
         drawMyBoard(enBoard, enStatus);
-        printf("========Jugador %i Gana=======\n\n", pnum);
+        printw("========Jugador %i Gana=======\n\n", pnum);
         drawMyBoard(myBoard, myStatus);
         return 1;
     }

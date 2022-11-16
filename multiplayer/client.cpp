@@ -1,6 +1,4 @@
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <curses.h>
@@ -93,7 +91,7 @@ int main()
 
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        printw("\n Socket creation error \n");
+        printf("\n Socket creation error \n");
         return -1;
     }
     
@@ -104,13 +102,13 @@ int main()
     // Convert IPv4 and IPv6 addresses from text to binary form
     if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
     {
-        printw("\nInvalid address/ Address not supported \n");
+        printf("\nInvalid address/ Address not supported \n");
         return -1;
     }
 
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
-        printw("\nConnection Failed \n");
+        printf("\nConnection Failed \n");
         return -1;
     }
 
@@ -203,17 +201,13 @@ int main()
                 drawMyBoard(p2_board, p2_fleet_status);
 
                 printw("<-----Turno del Jugador %i----->\n\n", player);
-                refresh();
                 printw("Fila: "); refresh();
-                scanf(" %c", &y);
-                printw("%c", y); refresh();
+                y = getch();
                 printw("\nColumna: "); refresh();
-                scanf(" %c", &x);\
-                printw("%c", x); refresh();
-
+                x = getch();
                 atk_error = attack(x, y, p1_board, p1_cv, p1_bb, p1_cl, p1_dd, p1_fleet_status);
                 
-            }while(!(y >= '0' && y <= '9' && x >= 'a' && x <= 'j' && atk_error==0));
+            }while(!(atk_error==0));
 
             char aux[2] = {y,x};
             char *msg = aux;
@@ -224,6 +218,7 @@ int main()
 
         player++;
     }
+    getch();
     endwin();
     return 0;
 }
@@ -357,157 +352,158 @@ void setBoard(char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3]
 }
 
 int attack(char x, char y, char board[10][10], char cv[1][4][3], char bb[2][3][3], char cl[3][2][3], char dd[4][1][3], bool status[10]){
-    x += -49;
-    char i, j;
-    int status_c = 0, hit_c;
-    bool hit = 0;
+    if(y >= '0' && y <= '9' && x >= 'a' && x <= 'j'){
+        x += -49;
+        char i, j;
+        int status_c = 0, hit_c;
+        bool hit = 0;
 
-    // i = y = fila 
-    // j = x = columna
+        // i = y = fila 
+        // j = x = columna
 
-    if(board[y-48][x-48]==' '){
-        board[y-48][x-48] = '.';
-        return 0;
-    }
-    else if(board[y-48][x-48] == '#'){
-
-        for(int b = 0 ; b < 1; b++){
-            hit_c = 0;
-            for(int d = 0; d<3; d++){    
-                for(int c = 0; c < 4; c++){
-
-                    if (d == 0 && cv[b][c][2] == 'X')
-                        break;  
-
-                    i = cv[b][c][0]-48;
-                    j = cv[b][c][1]-48;
-
-                    if(d == 0 && x == cv[b][c][1] && y == cv[b][c][0]){
-                        hit = 1;
-                        board[y-48][x-48] = '@';
-                        cv[b][c][2] = '@';
-                        break;
-                    }
-                    if(d == 1 && cv[b][c][2] == '@') 
-                        hit_c++;
-
-                    if(d == 2){
-                        board[i][j] = 'X';
-                        cv[b][c][2] = 'X';
-                    }
-
-                }
-
-                if(hit == 0)                break;
-                if(d == 1 && hit_c == 4)    status[status_c] = 0;
-                if(d == 1 && hit_c != 4)    break;
-            }
-            status_c++;
+        if(board[y-48][x-48]==' '){
+            board[y-48][x-48] = '.';
+            return 0;
         }
+        else if(board[y-48][x-48] == '#'){
 
-        for(int b = 0 ; b < 2; b++){  
-            hit_c = 0;
-            for(int d = 0; d<3; d++){  
-                for(int c = 0; c < 3; c++){
+            for(int b = 0 ; b < 1; b++){
+                hit_c = 0;
+                for(int d = 0; d<3; d++){    
+                    for(int c = 0; c < 4; c++){
 
-                    if (d == 0 && bb[b][c][2] == 'X')
-                        break;  
+                        if (d == 0 && cv[b][c][2] == 'X')
+                            break;  
 
-                    i = bb[b][c][0]-48;
-                    j = bb[b][c][1]-48;
+                        i = cv[b][c][0]-48;
+                        j = cv[b][c][1]-48;
 
-                    if(d == 0 && x == bb[b][c][1] && y == bb[b][c][0]){
-                        hit = 1;
-                        board[y-48][x-48] = '@';
-                        bb[b][c][2] = '@';
-                        break;
+                        if(d == 0 && x == cv[b][c][1] && y == cv[b][c][0]){
+                            hit = 1;
+                            board[y-48][x-48] = '@';
+                            cv[b][c][2] = '@';
+                            break;
+                        }
+                        if(d == 1 && cv[b][c][2] == '@') 
+                            hit_c++;
+
+                        if(d == 2){
+                            board[i][j] = 'X';
+                            cv[b][c][2] = 'X';
+                        }
+
                     }
-                    if(d == 1 && bb[b][c][2] == '@') 
-                        hit_c++;
 
-                    if(d == 2){
-                        board[i][j] = 'X';
-                        bb[b][c][2] = 'X';
-                    }
-
+                    if(hit == 0)                break;
+                    if(d == 1 && hit_c == 4)    status[status_c] = 0;
+                    if(d == 1 && hit_c != 4)    break;
                 }
-
-                if(hit == 0)                break;
-                if(d == 1 && hit_c == 3)    status[status_c] = 0;
-                if(d == 1 && hit_c != 3)    break;
+                status_c++;
             }
-            status_c++;               
-        }
 
-        for(int b = 0 ; b < 3; b++){
-            hit_c = 0;
-            for(int d = 0; d<3; d++){              
-                for(int c = 0; c < 2; c++){
-           
-                    if (d == 0 && cl[b][c][2] == 'X')
-                        break;  
+            for(int b = 0 ; b < 2; b++){  
+                hit_c = 0;
+                for(int d = 0; d<3; d++){  
+                    for(int c = 0; c < 3; c++){
 
-                    i = cl[b][c][0]-48;
-                    j = cl[b][c][1]-48;
+                        if (d == 0 && bb[b][c][2] == 'X')
+                            break;  
 
-                    if(d == 0 && x == cl[b][c][1] && y == cl[b][c][0]){
-                        hit = 1;
-                        board[y-48][x-48] = '@';
-                        cl[b][c][2] = '@';
-                        break;
+                        i = bb[b][c][0]-48;
+                        j = bb[b][c][1]-48;
+
+                        if(d == 0 && x == bb[b][c][1] && y == bb[b][c][0]){
+                            hit = 1;
+                            board[y-48][x-48] = '@';
+                            bb[b][c][2] = '@';
+                            break;
+                        }
+                        if(d == 1 && bb[b][c][2] == '@') 
+                            hit_c++;
+
+                        if(d == 2){
+                            board[i][j] = 'X';
+                            bb[b][c][2] = 'X';
+                        }
+
                     }
-                    if(d == 1 && cl[b][c][2] == '@') 
-                        hit_c++;
 
-                    if(d == 2){
-                        board[i][j] = 'X';
-                        cl[b][c][2] = 'X';
-                    }
-
+                    if(hit == 0)                break;
+                    if(d == 1 && hit_c == 3)    status[status_c] = 0;
+                    if(d == 1 && hit_c != 3)    break;
                 }
-
-                if(hit == 0)                break;
-                if(d == 1 && hit_c == 2)    status[status_c] = 0;
-                if(d == 1 && hit_c != 2)    break;
+                status_c++;               
             }
-            status_c++; 
-        }
-        
-        for(int b = 0 ; b < 4; b++){  
-            hit_c = 0;
-            for(int d = 0; d<3; d++){  
-                for(int c = 0; c < 1; c++){
 
-                    if (d == 0 && dd[b][c][2] == 'X')
-                        break;  
+            for(int b = 0 ; b < 3; b++){
+                hit_c = 0;
+                for(int d = 0; d<3; d++){              
+                    for(int c = 0; c < 2; c++){
+            
+                        if (d == 0 && cl[b][c][2] == 'X')
+                            break;  
 
-                    i = dd[b][c][0]-48;
-                    j = dd[b][c][1]-48;
+                        i = cl[b][c][0]-48;
+                        j = cl[b][c][1]-48;
 
-                    if(d == 0 && x == dd[b][c][1] && y == dd[b][c][0]){
-                        hit = 1;
-                        board[y-48][x-48] = '@';
-                        dd[b][c][2] = '@';
-                        break;
+                        if(d == 0 && x == cl[b][c][1] && y == cl[b][c][0]){
+                            hit = 1;
+                            board[y-48][x-48] = '@';
+                            cl[b][c][2] = '@';
+                            break;
+                        }
+                        if(d == 1 && cl[b][c][2] == '@') 
+                            hit_c++;
+
+                        if(d == 2){
+                            board[i][j] = 'X';
+                            cl[b][c][2] = 'X';
+                        }
+
                     }
-                    if(d == 1 && dd[b][c][2] == '@') 
-                        hit_c++;
 
-                    if(d == 2){
-                        board[i][j] = 'X';
-                        dd[b][c][2] = 'X';
-                    }
-
+                    if(hit == 0)                break;
+                    if(d == 1 && hit_c == 2)    status[status_c] = 0;
+                    if(d == 1 && hit_c != 2)    break;
                 }
-
-                if(hit == 0)                break;
-                if(d == 1 && hit_c == 1)    status[status_c] = 0;
-                if(d == 1 && hit_c != 1)    break;
+                status_c++; 
             }
-            status_c++; 
-        }
-        return 0;
+            
+            for(int b = 0 ; b < 4; b++){  
+                hit_c = 0;
+                for(int d = 0; d<3; d++){  
+                    for(int c = 0; c < 1; c++){
 
+                        if (d == 0 && dd[b][c][2] == 'X')
+                            break;  
+
+                        i = dd[b][c][0]-48;
+                        j = dd[b][c][1]-48;
+
+                        if(d == 0 && x == dd[b][c][1] && y == dd[b][c][0]){
+                            hit = 1;
+                            board[y-48][x-48] = '@';
+                            dd[b][c][2] = '@';
+                            break;
+                        }
+                        if(d == 1 && dd[b][c][2] == '@') 
+                            hit_c++;
+
+                        if(d == 2){
+                            board[i][j] = 'X';
+                            dd[b][c][2] = 'X';
+                        }
+
+                    }
+
+                    if(hit == 0)                break;
+                    if(d == 1 && hit_c == 1)    status[status_c] = 0;
+                    if(d == 1 && hit_c != 1)    break;
+                }
+                status_c++; 
+            }
+            return 0;
+        }
     }
     return -1;    
 }
