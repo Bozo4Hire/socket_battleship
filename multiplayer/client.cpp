@@ -516,10 +516,11 @@ bool checkwin(int pnum, char myBoard[10][10], char enBoard[10][10], bool curStat
     }
 
     if(status_sum < 1){
-        system("clear");
+        clear();
         drawMyBoard(enBoard, enStatus);
         printw("========Jugador %i Gana=======\n\n", pnum);
         drawMyBoard(myBoard, myStatus);
+        refresh();
         return 1;
     }
     else
